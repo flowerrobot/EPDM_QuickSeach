@@ -1,0 +1,321 @@
+﻿<Window x:Class="MainWindow" 
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" 
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" 
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+        xmlns:local="clr-namespace:QuickEDMSeach" 
+        xmlns:my="clr-namespace:QuickEDMSeach" 
+        xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"       
+        mc:Ignorable="d" 
+        Width="130" Height="25" 
+        WindowStyle="None" 
+        MouseLeftButtonDown="Window_MouseLeftButtonDown" 
+        Topmost="True" 
+        ResizeMode="NoResize" AllowsTransparency="True" 
+        x:Name="MainForm" Top="{Binding TopPos}" Left="{Binding LeftPos}" 
+        MouseEnter="MainForm_MouseEnter" MouseLeave="MainForm_MouseLeave" Deactivated="MainForm_Deactivated" ShowInTaskbar="{Binding ShowInTaskBar}"  >
+    <!--Width="152"-->
+    <Window.Style>
+        <Style TargetType="{x:Type Window}">
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding FormTransparent}" Value="True">
+                    <Setter Property="Background" Value="#02FFFFFF" />
+                    <Setter Property="AllowsTransparency" Value="True"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding FormTransparent}" Value="False">
+                    <Setter Property="Background" Value="#FFFFFFFF" />
+                    <Setter Property="AllowsTransparency" Value="False"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+    </Window.Style>
+    <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVisibleConverter" />
+        <local:BooleanToCollapsedConverter x:Key="BoolToCollapsedConverter" />
+        <local:BooleanToInverseBoolean x:Key="BooleanToInverseBoolean" />
+        <local:AndBooleanMulitConverter x:Key="AndBollean"/>
+
+        <BitmapImage x:Key="BI_SeachClear" UriSource="Images/SearchClear_24.png" />
+        <BitmapImage x:Key="BI_Pin" UriSource="Images/Pin.png" />
+        <BitmapImage x:Key="BI_NotPin" UriSource="Images/Pin_NoPinded.png" />
+        <BitmapImage x:Key="BI_Folder" UriSource="Images/Folder_Green_16.png" />
+        <BitmapImage x:Key="BI_AutoCAD" UriSource="Images/AutoCAD_DWG_16.png" />
+        <BitmapImage x:Key="BI_Assembly" UriSource="Images/Solidworks_Assembly_16.png"  />
+        <BitmapImage x:Key="BI_Drawing" UriSource="Images/Solidworks_Drawing_16.png" />
+        <BitmapImage x:Key="BI_PDF" UriSource="Images/PDF_16.png" />
+        <CommandBinding x:Key="GiveFocusToTextBox"></CommandBinding>
+        <DockPanel x:Key="GreenPannel">
+            <Image DockPanel.Dock="Left" Width="16" Height="16" Margin="0,0,10,0" Source="{StaticResource BI_Folder}" />
+            <ContentPresenter DockPanel.Dock="Left" Content="Open file folder  (Shift+Enter)" />
+        </DockPanel>
+        <DockPanel x:Key="DP_AutoCAD">
+            <Image DockPanel.Dock="Left" Width="16" Height="16" Margin="0,0,10,0" Source="{StaticResource BI_AutoCAD}" />
+            <ContentPresenter DockPanel.Dock="Left" Content="AutoCAD Drawing" />
+        </DockPanel>
+        <DockPanel x:Key="DP_SLDAsm">
+            <Image DockPanel.Dock="Left" Width="16" Height="16" Margin="0,0,10,0" Source="{StaticResource BI_Assembly}" />
+            <ContentPresenter DockPanel.Dock="Left" Content="Solidworks Model" />
+        </DockPanel>
+        <DockPanel x:Key="DP_SldDrw">
+            <Image DockPanel.Dock="Left" Width="16" Height="16" Margin="0,0,10,0" Source="{StaticResource BI_Drawing}" />
+            <ContentPresenter DockPanel.Dock="Left" Content="Solidworks Drawing" />
+        </DockPanel>
+        <DockPanel x:Key="DP_PDF">
+            <Image DockPanel.Dock="Left" Width="16" Height="16" Margin="0,0,10,0" Source="{StaticResource BI_PDF}" />
+            <TextBlock DockPanel.Dock="Left" Text="PDF" />
+        </DockPanel>
+
+        <DockPanel x:Key="DP_OpenModel">
+            <Image DockPanel.Dock="Left" Width="16" Height="16" Margin="0,0,10,0" Source="{StaticResource BI_Assembly}" />
+            <ContentPresenter DockPanel.Dock="Left" Content="Open Model (Ctrl+Shift)" />
+        </DockPanel>
+        <DockPanel x:Key="DP_OpenModel2" LastChildFill="False">
+            <Image DockPanel.Dock="Left" Width="16" Height="16" Margin="0,0,10,0" Source="{StaticResource BI_Assembly}" />
+            <MenuItem DockPanel.Dock="Left" Command="local:MainWindow.OpenModel"/>
+        </DockPanel>
+        <DockPanel x:Key="DP_OpenDrawing">
+            <Image DockPanel.Dock="Left" Width="16" Height="16" Margin="0,0,10,0" Source="{StaticResource BI_Drawing}" />
+            <ContentPresenter DockPanel.Dock="Left" Content="Open Drawing (Shift+BackSpace)" />
+        </DockPanel>
+        <Style x:Key="NoButtonBorder" TargetType="{x:Type Button}">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type Button}">
+                        <ContentPresenter Margin="{TemplateBinding Padding}" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" ContentTemplate="{TemplateBinding ContentTemplate}" RecognizesAccessKey="True" Content="{TemplateBinding Content}" />
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="TGNoButtonBorder" TargetType="{x:Type ToggleButton}">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type ToggleButton}">
+                        <ContentPresenter Margin="{TemplateBinding Padding}" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" ContentTemplate="{TemplateBinding ContentTemplate}" RecognizesAccessKey="True" Content="{TemplateBinding Content}" />
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="PB_Searching" TargetType="ProgressBar">
+            <Setter Property="Visibility" Value="Visible" />
+            <Setter Property="IsIndeterminate" Value="True" />
+            <Setter Property="Background" Value="{x:Null}" />
+        </Style>
+        <Style x:Key="PB_Found" TargetType="ProgressBar">
+            <Setter Property="Visibility" Value="Visible" />
+            <Setter Property="IsIndeterminate" Value="False" />
+            <Setter Property="Background" Value="#FF01D328" />
+        </Style>
+        <Style x:Key="PB_NotFound" TargetType="ProgressBar">
+            <Setter Property="Visibility" Value="Visible" />
+            <Setter Property="IsIndeterminate" Value="False" />
+            <Setter Property="Background" Value="#FFEA1919" />
+        </Style>
+        <Style x:Key="PB_Default" TargetType="ProgressBar">
+            <Setter Property="Visibility" Value="Collapsed" />
+            <Setter Property="IsIndeterminate" Value="False" />
+            <Setter Property="Background" Value="#FFBABABA" />
+        </Style>
+        <Style x:Key="Grid_Default" TargetType="Grid">
+            <Setter Property="OpacityMask" Value="#FF000000" />
+            <Setter Property="IsEnabled" Value="True" />
+        </Style>
+        <Style x:Key="Grid_Transparent" TargetType="Grid">
+            <Setter Property="OpacityMask" Value="#4C000000" />
+            <Setter Property="IsEnabled" Value="False" />
+        </Style>
+    </Window.Resources>
+    <Window.ContextMenu>
+        <ContextMenu>
+            <MenuItem Header="Clear" Command="local:MainWindow.ClearTxtCommand" />
+            <MenuItem Header="Paste" Command="local:MainWindow.PasteCommand"/>
+            <Separator />
+            <MenuItem x:Name="CB_Pin" Header="Pin" IsCheckable="True" IsChecked="{Binding ShrinkWindow, Converter={StaticResource BooleanToInverseBoolean}}" />
+            <MenuItem x:Name="CB_Transparent" Header="Transparent" IsCheckable="True" IsChecked="{Binding FormTransparent}" />
+            <MenuItem Header="Run at Start up" IsCheckable="True" IsChecked="{Binding RunAtStartUp}"/>
+            <MenuItem Header="Show Icon" IsCheckable="True" IsChecked="{Binding ShowInTaskBar}"/>
+            <Separator />
+            <MenuItem Header="Close" Command="local:MainWindow.CloseCommand" />
+        </ContextMenu>
+    </Window.ContextMenu>
+    <Window.CommandBindings>
+        <CommandBinding Command="local:MainWindow.SearchCommand" CanExecute="CommandBinding_OnFocus_CanExecute" Executed="CommandBinding_Search_Executed"/>
+        <CommandBinding Command="local:MainWindow.OpenDwg" CanExecute="CommandBinding_OnFocus_CanExecute" Executed="CommandBinding_OpenDwg_Executed"/>
+        <CommandBinding Command="local:MainWindow.OpenModel" CanExecute="CommandBinding_OnFocus_CanExecute" Executed="CommandBinding_OpenModel_Executed"/>
+        <CommandBinding Command="local:MainWindow.OpenFolder" CanExecute="CommandBinding_OnFocus_CanExecute" Executed="CommandBinding_OpenFolder_Executed"/>
+        <CommandBinding Command="local:MainWindow.QuickFocus" CanExecute="CommandBinding_AlwaysCanExecute" Executed="CommandBinding_QuickFocus_Executed"/>
+        <CommandBinding Command="local:MainWindow.ClearTxtCommand" CanExecute="CommandBinding_AlwaysCanExecute" Executed="CommandBinding_ClearTxt_Executed"/>
+        <CommandBinding Command="local:MainWindow.PasteCommand" CanExecute="CommandBinding_AlwaysCanExecute" Executed="CommandBinding_Paste_Executed"/>
+        <CommandBinding Command="local:MainWindow.CloseCommand" CanExecute="CommandBinding_AlwaysCanExecute" Executed="CommandBinding_Close_Executed"/>
+    </Window.CommandBindings>
+    <Border Margin="0,0,0,0" BorderBrush="Black">
+        <Grid Height="25" VerticalAlignment="Top" MouseLeftButtonDown="Window_MouseLeftButtonDown">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="18" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <ToggleButton x:Name="Btn_Pin" Grid.Column="0" IsChecked="{Binding ShrinkWindow}" Height="16" Width="16" Style="{StaticResource  TGNoButtonBorder }" ToolTip="Toggle Expanded">
+                <StackPanel>
+                    <Image Source="{StaticResource  BI_NotPin}" Visibility="{Binding RelativeSource={RelativeSource AncestorType=ToggleButton},Path=IsChecked,Converter={StaticResource BoolToVisibleConverter}}" />
+                    <Image Source="{StaticResource BI_Pin }" Visibility="{Binding RelativeSource={RelativeSource AncestorType=ToggleButton},Path=IsChecked,Converter={StaticResource  BoolToCollapsedConverter}}" />
+                </StackPanel>
+            </ToggleButton>
+            <ProgressBar Grid.Column="1" x:Name="PG_Searcher" Style="{DynamicResource  PB_Default}" MouseLeftButtonDown="Window_MouseLeftButtonDown" />
+            <Grid x:Name="ControlGrid" Grid.Column="1" Style="{DynamicResource  Grid_Default}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="85" />
+                    <ColumnDefinition Width="10" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <Grid Grid.Column="1" Cursor="SizeAll" Background="#02FFFFFF"/>
+                <Grid Grid.Column="0" Height="25" MaxWidth="85" MinWidth="85" HorizontalAlignment="Left" DockPanel.Dock="Left" Margin="0,0,0,0">
+                    <TextBox VerticalAlignment="Center" x:Name="TB_SearchTermTextBox" Text="{Binding SearchBoxText,UpdateSourceTrigger=PropertyChanged}" RenderTransformOrigin="0.5,0.5" FlowDirection="RightToLeft" MaxLength="11" MouseLeftButtonDown="Window_MouseLeftButtonDown" />
+                    <TextBlock x:Name="TB_Prefix" IsHitTestVisible="False" Text="{Binding WatermarkText,UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="0,0,0,0" Foreground="DarkGray" MouseLeftButtonDown="Window_MouseLeftButtonDown">
+                        <TextBlock.Style>
+                            <Style TargetType="{x:Type TextBlock}">
+                                <Setter Property="Visibility" Value="Visible" />
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding Text, ElementName=SearchTermTextBox}" Value="">
+                                        <Setter Property="Text" Value="{Binding WatermarkText}" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
+                </Grid>
+                <Grid Grid.Column="2">
+                    <xctk:SplitButton x:Name="SP_Open" Command="local:MainWindow.SearchCommand" MouseLeftButtonDown="Window_MouseLeftButtonDown" Visibility="Collapsed">
+                        <DockPanel>
+                            <Image  DockPanel.Dock="Left" Width="16" Source="Images/SearchIcon2_16.png" />
+                        </DockPanel>
+                        <xctk:SplitButton.DropDownContent>
+                            <StackPanel>
+                                <MenuItem  Command="local:MainWindow.OpenFolder" IsCheckable="False"  HorizontalAlignment="Left" VerticalAlignment="Top">
+                                    <MenuItem.Icon>
+                                        <Image Source="Images/Folder_Green_16.png"  Height="16" Width="16"/>
+                                    </MenuItem.Icon>
+                                </MenuItem>
+                                <MenuItem  Command="local:MainWindow.OpenDwg" IsCheckable="False"  HorizontalAlignment="Left" VerticalAlignment="Top">
+                                    <MenuItem.Icon>
+                                        <Image Source="Images/Solidworks_Drawing_16.png"  Height="16" Width="16"/>
+                                    </MenuItem.Icon>
+                                </MenuItem>
+                                <MenuItem  Command="local:MainWindow.OpenModel" IsCheckable="False"  HorizontalAlignment="Left" VerticalAlignment="Top">
+                                    <MenuItem.Icon>
+                                        <Image Source="Images/Solidworks_Assembly_16.png"  Height="16" Width="16"/>
+                                    </MenuItem.Icon>
+                                </MenuItem>
+                                <Separator/>
+                                <Label Content="Search Items"/>
+                                <MenuItem x:Name="PDF" IsCheckable="True" Header="{StaticResource DP_PDF}" IsChecked="{Binding PDFEnabled}"/>
+                                <MenuItem x:Name="SldDrw" IsCheckable="True" Header="{StaticResource DP_SldDrw}" IsChecked="{Binding SldDrwEnabled}"/>
+                                <MenuItem x:Name="Dwg" IsCheckable="True" Header="{StaticResource DP_AutoCAD}" IsChecked="{Binding DwgEnabled}"/>
+                                <MenuItem x:Name="Model" IsCheckable="True" Header="{StaticResource  DP_SLDAsm}" IsChecked="{Binding ModelEnabled}"/>
+                                <Separator />
+                                <MenuItem Header="Quick Focus Ctrl+`"/>
+                                <MenuItem Header="Run at Start up" IsCheckable="True" IsChecked="{Binding RunAtStartUp}"/>
+                                <MenuItem Header="Show Icon" IsCheckable="True" IsChecked="{Binding ShowInTaskBar}"/>
+                                <TextBlock Text="Default search text"/>
+                                <TextBox Margin="5,0" Text="{Binding DefaultWatermarkText}"/>
+                                <Separator />
+                                <!--<StackPanel x:Name="SP_Vaults">
+                                    <Label Content="Search in vault" />
+                                </StackPanel>-->
+                                <Separator />
+                                <TextBlock Text="Created by Seth Ruhan"/>
+                                <TextBlock Text="Seth.Ruhan@gmail.com"/>
+                            </StackPanel>
+                        </xctk:SplitButton.DropDownContent>
+                    </xctk:SplitButton>
+                    <ToggleButton IsChecked="{Binding ShowSettings}" Height="20" Width="20" Style="{StaticResource  TGNoButtonBorder }" ToolTip="Settings" HorizontalAlignment="Center" VerticalAlignment="Center">
+                        <Image Height="16" Width="16" Source="Images/cog_32.png" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </ToggleButton>
+                </Grid>
+            </Grid>
+            <Popup x:Name="SearchPopUp" MouseLeave="SearchPopUp_MouseLeave"  ><!--IsOpen="{Binding ElementName=TB_SearchTermTextBox,Path=IsKeyboardFocused,Mode=OneWay}"-->
+                <Popup.IsOpen>
+                    <MultiBinding Converter="{StaticResource AndBollean}">
+                        <Binding ElementName="TB_SearchTermTextBox" Path="IsKeyboardFocused" Mode="OneWay" UpdateSourceTrigger="PropertyChanged"/>
+                        <Binding ElementName="TB_SearchTermTextBox" Path="IsFocused" Mode="OneWay" UpdateSourceTrigger="PropertyChanged"/>
+                        <Binding ElementName="MainForm" Path="IsActive" Mode="OneWay" UpdateSourceTrigger="PropertyChanged"/>
+                    </MultiBinding>
+                </Popup.IsOpen>
+                
+                <StackPanel Background="White" Width="250" >
+                    <MenuItem  Command="local:MainWindow.SearchCommand" IsCheckable="False"  HorizontalAlignment="Left" VerticalAlignment="Top" Width="255" Focusable="False">
+                        <MenuItem.Icon>
+                            <Image Source="Images/SearchIcon2_16.png"  Height="16" Width="16"/>
+                        </MenuItem.Icon>
+                    </MenuItem>
+                    <MenuItem  Command="local:MainWindow.OpenFolder" IsCheckable="False"  HorizontalAlignment="Left" VerticalAlignment="Top" Width="255" Focusable="False">
+                        <MenuItem.Icon>
+                            <Image Source="Images/Folder_Green_16.png"  Height="16" Width="16"/>
+                        </MenuItem.Icon>
+                    </MenuItem>
+                    <MenuItem  Command="local:MainWindow.OpenDwg" IsCheckable="False"  HorizontalAlignment="Left" VerticalAlignment="Top" Width="255" Focusable="False">
+                        <MenuItem.Icon>
+                            <Image Source="Images/Solidworks_Drawing_16.png"  Height="16" Width="16"/>
+                        </MenuItem.Icon>
+                    </MenuItem>
+                    <MenuItem  Command="local:MainWindow.OpenModel" IsCheckable="False"  HorizontalAlignment="Left" VerticalAlignment="Top" Width="255" Focusable="False">
+                        <MenuItem.Icon>
+                            <Image Source="Images/Solidworks_Assembly_16.png"  Height="16" Width="16"/>
+                        </MenuItem.Icon>
+                    </MenuItem>
+                </StackPanel>
+            </Popup>
+            <Popup IsOpen="{Binding ShowSettings,Mode=TwoWay}" StaysOpen="False" x:Name="SettingsPopup">
+                <StackPanel Background="White" >
+                    <Label Content="Search Items"/>
+                    <MenuItem  IsCheckable="True" IsChecked="{Binding PDFEnabled}">                        <!--Header="{StaticResource DP_PDF}"-->
+                        <MenuItem.Header>
+                            <DockPanel>
+                                <Image DockPanel.Dock="Left" Width="16" Height="16" Margin="0,0,10,0" Source="{StaticResource BI_PDF}" />
+                                <TextBlock DockPanel.Dock="Left" Text="PDF" />
+                            </DockPanel>
+                        </MenuItem.Header>
+                    </MenuItem>
+                    <MenuItem  IsCheckable="True"  IsChecked="{Binding SldDrwEnabled}"><!--Header="{StaticResource DP_SldDrw}"-->
+                        <MenuItem.Header>
+                            <DockPanel>
+                                <Image DockPanel.Dock="Left" Width="16" Height="16" Margin="0,0,10,0" Source="{StaticResource BI_Drawing}" />
+                                <ContentPresenter DockPanel.Dock="Left" Content="Solidworks Drawing" />
+                            </DockPanel>
+                        </MenuItem.Header>
+                    </MenuItem>
+                    <MenuItem  IsCheckable="True" IsChecked="{Binding DwgEnabled}"><!--Header="{StaticResource DP_AutoCAD}"-->
+                        <MenuItem.Header>
+                            <DockPanel>
+                                <Image DockPanel.Dock="Left" Width="16" Height="16" Margin="0,0,10,0" Source="{StaticResource BI_AutoCAD}" />
+                                <ContentPresenter DockPanel.Dock="Left" Content="AutoCAD Drawing" />
+                            </DockPanel>
+                        </MenuItem.Header>
+                    </MenuItem>
+                    <MenuItem  IsCheckable="True"  IsChecked="{Binding ModelEnabled}"><!--Header="{StaticResource  DP_SLDAsm}"-->
+                        <MenuItem.Header>
+                            <DockPanel>
+                                <Image DockPanel.Dock="Left" Width="16" Height="16" Margin="0,0,10,0" Source="{StaticResource BI_Assembly}" />
+                                <ContentPresenter DockPanel.Dock="Left" Content="Solidworks Model" />
+                            </DockPanel>
+                        </MenuItem.Header>
+                    </MenuItem>
+                    <Separator />
+                    <MenuItem Header="Quick Focus Ctrl+`"/>
+                    <MenuItem Header="Run at Start up" IsCheckable="True" IsChecked="{Binding RunAtStartUp}"/>
+                    <MenuItem Header="Show Icon on desktop" IsCheckable="True" IsChecked="{Binding ShowInTaskBar}"/>
+                    <MenuItem Header="Back ground Transparent" IsCheckable="True" IsChecked="{Binding FormTransparent}" />
+                    <TextBlock Text="Default search text"/>
+                    <TextBox Margin="5,0" Text="{Binding DefaultWatermarkText}"/>
+                    <Separator />
+                    <StackPanel x:Name="SP_Vaults">
+                        <Label Content="Search in vault" />
+                    </StackPanel>
+                    <Separator />
+                    <MenuItem Header="Close" Command="local:MainWindow.CloseCommand" />
+                    <TextBlock Text="Created by Seth Ruhan"/>
+                    <TextBlock Text="Seth.Ruhan@gmail.com"/>
+                    <TextBlock Text="{Binding Version}"/>
+                </StackPanel>
+            </Popup>
+        </Grid>
+    </Border>
+</Window>
